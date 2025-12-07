@@ -11,6 +11,7 @@ NC="\033[0m"
 
 echo -e "${YELLOW}Starting parallel Pokémon data fetch...${NC}"
 
+# "kill"
 # Function to fetch a single Pokémon
 fetch_pokemon() {
     NAME=$1
