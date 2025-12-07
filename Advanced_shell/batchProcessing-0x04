@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# List of Pokémon to fetch in parallel
+POKEMON_LIST=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
+
+# Colors for logging (ALX-safe)
+GREEN="\033[0;32m"
+RED="\033[0;31m"
+YELLOW="\033[1;33m"
+NC="\033[0m"
+
+echo -e "${YELLOW}Starting parallel Pokémon data fetch...${NC}"
+
+# Function to fetch a single Pokémon
+fetch_pokemon() {
+    NAME=$1
+    URL="https://pokeapi.co/api/v2/pokemon/$NAME"
+    OUTFILE="${NAME}.json"
+
+    # Silent + fail on HTTP errors
+    curl -s -f "$URL" -o "$OUTFILE"
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Success:${NC} $NAME saved to $OUTFILE"
+    else
+        echo "Failed to fetch '$NAME' at $(date)" >> errors.txt
+        echo -e "${RED}Error:${NC} Failed to fetch $NAME"
+    fi
+}
+
+# Launch all fetch operations in parallel
+for POKEMON in "${POKEMON_LIST[@]}"; do
+    fetch_pokemon "$POKEMON" &
+done
+
+echo -e "${YELLOW}Waiting for all background tasks to complete...${NC}"
+
+# Wait for all background jobs
+wait
+
+echo -e "${GREEN}All parallel fetch operations completed.${NC}"
