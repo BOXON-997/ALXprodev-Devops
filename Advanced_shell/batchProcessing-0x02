@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Colors for logging (safe for ALX)
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+YELLOW="\033[1;33m"
+NC="\033[0m" # No Color
+
+# Ensure user passed Pokémon names
+if [ $# -eq 0 ]; then
+    echo -e "${RED}Error:${NC} No Pokémon names provided."
+    echo "Usage: $0 pikachu bulbasaur charizard"
+    exit 1
+fi
+
+# Loop through each provided Pokémon name
+for POKEMON in "$@"; do
+    echo -e "${YELLOW}Processing Pokémon:${NC} $POKEMON"
+
+    URL="https://pokeapi.co/api/v2/pokemon/${POKEMON,,}"
+    OUTPUT="${POKEMON,,}.json"
+
+    ATTEMPTS=0
+    SUCCESS=0
+
+    # Retry loop (max 3 attempts)
+    while [ $ATTEMPTS -lt 3 ]; do
+        ATTEMPTS=$((ATTEMPTS + 1))
+
+        echo -e "${YELLOW}Attempt $ATTEMPTS for $POKEMON...${NC}"
+
+        curl -s -f "$URL" -o "$OUTPUT"
+        if [ $? -eq 0 ]; then
+            SUCCESS=1
+            echo -e "${GREEN}Success:${NC} Saved to ${OUTPUT}"
+            break
+        else
+            echo -e "${RED}Failed attempt $ATTEMPTS for $POKEMON${NC}"
+            sleep 1
+        fi
+    done
+
+    # Log failure after all retries
+    if [ $SUCCESS -eq 0 ]; then
+        echo -e "${RED}Error:${NC} Could not fetch data for $POKEMON after 3 attempts."
+        echo "Failed to fetch '$POKEMON' at $(date)" >> errors.txt
+    fi
+
+    echo ""
+done
