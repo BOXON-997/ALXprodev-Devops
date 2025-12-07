@@ -1,0 +1,21 @@
+#!/bin/bash
+
+URL="https://pokeapi.co/api/v2/pokemon/pikachu"
+
+# Colors
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+YELLOW="\033[1;33m"
+NC="\033[0m"   # No Color
+
+echo -e "${YELLOW}Fetching Pikachu data from the Pokémon API...${NC}"
+
+# Make API request
+curl -s -f "$URL" -o data.json
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}Success:${NC} Data saved to data.json"
+else
+    echo "Failed to fetch API data for Pikachu at $(date)" >> errors.txt
+    echo -e "${RED}Error:${NC} Failed to fetch API data. Logged to errors.txt"
+fi
